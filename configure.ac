@@ -7,11 +7,11 @@ AM_INIT_AUTOMAKE([foreign -Werror subdir-objects])
 
 AC_PROG_CXX
 
-AC_CONFIG_SRCDIR([src/main.cpp])
+AC_CONFIG_SRCDIR([netcode])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([
     Makefile
-    src/Makefile
+    netcode/Makefile
 ])
 
 AC_OUTPUT
