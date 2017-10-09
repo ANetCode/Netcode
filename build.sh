@@ -9,7 +9,7 @@ autoreconf --install
 mkdir -p ${BUILD_OUTPUT} 
 cd ${BUILD_OUTPUT} 
 ../configure
-make
+make && make test
 
 # do release
 mkdir -p ${RELEASE_DIR}/bin
