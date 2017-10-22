@@ -15,11 +15,14 @@ public:
     void reset();
 
     void copy(const uint8_t *data, size_t size);
-    void copy(const buffer* other);
-    const uint8_t* r_data() { return m_data; }
+    void copy(const buffer& other);
+    void pop_front(size_t size);
+    const uint8_t* r_data() const { return m_data; };
     uint8_t*       w_data() { return m_data + m_size; }
-    size_t         size() { return m_size; }
-    size_t         remains() { return m_capacity - m_size; }
+    void           set_size (size_t size);
+    size_t         size() const { return m_size; }
+    size_t         remains() const { return m_capacity - m_size; }
+    void dump() const;
 private:
     void init();
 private:

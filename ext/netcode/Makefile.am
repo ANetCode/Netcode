@@ -5,9 +5,11 @@ netcode_la_SOURCES =         \
     lua/lua_netcode.cpp      \
     lua/lua_utils.cpp        \
     lua/lua_connection.cpp   \
+    lua/lua_message.cpp   \
     netcode.cpp              \
     network/socket_utils.cpp \
     network/connection.cpp   \
+    network/message.cpp      \
     common/common.cpp        \
     common/buffer.cpp
 

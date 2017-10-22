@@ -44,21 +44,73 @@ void l_invoke_table_function(lua_State* L, int ref, const char* func_name, int a
         return;
     }
 }
+std::string l_print_by_type(lua_State* L, int idx);
+std::string l_dump_table(lua_State* L, int idx);
+
+std::string l_print_by_type(lua_State* L, int idx) {
+    std::stringstream ss;
+    ss << "\t";
+    int type = lua_type(L, idx);
+    switch(type) {
+        case LUA_TSTRING: {
+            ss << lua_tostring(L, idx);
+        }break;
+        case LUA_TBOOLEAN: {
+            ss << lua_toboolean(L, idx);
+        }break;
+        case LUA_TNUMBER: {
+            ss << lua_tonumber(L, idx);
+        }break;
+        case LUA_TUSERDATA: {
+            ss << lua_touserdata(L, idx);
+        }break;
+        case LUA_TTABLE: {
+            ss << "[table]";
+        }break;
+        case LUA_TLIGHTUSERDATA: {
+            ss << lua_touserdata(L, idx) << " (light user data) ";
+        }break;
+        case LUA_TFUNCTION: {
+            ss << lua_tocfunction(L, idx);
+        }
+        default: {
+            ss << "[" << luaL_typename(L, idx) << "]";
+        }
+    }
+    return ss.str();
+}
+
+std::string l_dump_table(lua_State* L, int idx) {
+    std::stringstream ss;
+    lua_pushvalue(L, idx);
+    lua_pushnil(L);
+    int i=0;
+    while(lua_next(L, -2)) {
+        lua_pushvalue(L, -2);
+        // key
+        int type = lua_type(L, -1);
+        if (type == LUA_TSTRING) {
+            ss << lua_tostring(L, -1);
+        } else {
+            ss << lua_tointeger(L, -1);
+        }
+        // VALUE
+        ss << l_print_by_type(L, -2);
+        //
+        lua_pop(L, 2);
+    }
+    lua_pop(L, 1);
+    return ss.str();
+}
 
 void l_dump_stack(lua_State* L) {
     std::stringstream ss;
     int nargs = lua_gettop(L);
-    ss << "\n";
+    ss << "\ndump lua stack:\n";
     for (int i=1; i <= nargs; i++) {
         int idx = nargs - i;
-        int type = lua_type(L, idx);
-        const char* type_name = lua_typename(L, type);
-        ss << idx + 1 << " => (" << type_name << ")";
-        if (type == LUA_TSTRING) {
-            ss << " = " << lua_tostring(L, idx);
-        } else if (type == LUA_TUSERDATA){
-            ss << " = " << lua_touserdata(L, idx);
-        }
+        ss << idx + 1 << " => (" << luaL_typename(L, idx) << ")";
+        ss << l_print_by_type(L, idx);
         ss << "\n";
     }
     logd("%s", ss.str().c_str());

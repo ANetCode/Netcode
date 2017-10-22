@@ -131,9 +131,10 @@ netcode_la_LIBADD =
 am__dirstamp = $(am__leading_dot)dirstamp
 am_netcode_la_OBJECTS = lua/netcode_la-lua_netcode.lo \
 	lua/netcode_la-lua_utils.lo lua/netcode_la-lua_connection.lo \
-	netcode_la-netcode.lo network/netcode_la-socket_utils.lo \
-	network/netcode_la-connection.lo common/netcode_la-common.lo \
-	common/netcode_la-buffer.lo
+	lua/netcode_la-lua_message.lo netcode_la-netcode.lo \
+	network/netcode_la-socket_utils.lo \
+	network/netcode_la-connection.lo network/netcode_la-message.lo \
+	common/netcode_la-common.lo common/netcode_la-buffer.lo
 netcode_la_OBJECTS = $(am_netcode_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -330,9 +331,11 @@ netcode_la_SOURCES = \
     lua/lua_netcode.cpp      \
     lua/lua_utils.cpp        \
     lua/lua_connection.cpp   \
+    lua/lua_message.cpp   \
     netcode.cpp              \
     network/socket_utils.cpp \
     network/connection.cpp   \
+    network/message.cpp      \
     common/common.cpp        \
     common/buffer.cpp
 
@@ -421,6 +424,8 @@ lua/netcode_la-lua_utils.lo: lua/$(am__dirstamp) \
 	lua/$(DEPDIR)/$(am__dirstamp)
 lua/netcode_la-lua_connection.lo: lua/$(am__dirstamp) \
 	lua/$(DEPDIR)/$(am__dirstamp)
+lua/netcode_la-lua_message.lo: lua/$(am__dirstamp) \
+	lua/$(DEPDIR)/$(am__dirstamp)
 network/$(am__dirstamp):
 	@$(MKDIR_P) network
 	@: > network/$(am__dirstamp)
@@ -430,6 +435,8 @@ network/$(DEPDIR)/$(am__dirstamp):
 network/netcode_la-socket_utils.lo: network/$(am__dirstamp) \
 	network/$(DEPDIR)/$(am__dirstamp)
 network/netcode_la-connection.lo: network/$(am__dirstamp) \
+	network/$(DEPDIR)/$(am__dirstamp)
+network/netcode_la-message.lo: network/$(am__dirstamp) \
 	network/$(DEPDIR)/$(am__dirstamp)
 common/$(am__dirstamp):
 	@$(MKDIR_P) common
@@ -461,9 +468,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/netcode_la-buffer.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@common/$(DEPDIR)/netcode_la-common.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@lua/$(DEPDIR)/netcode_la-lua_connection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@lua/$(DEPDIR)/netcode_la-lua_message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@lua/$(DEPDIR)/netcode_la-lua_netcode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@lua/$(DEPDIR)/netcode_la-lua_utils.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@network/$(DEPDIR)/netcode_la-connection.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@network/$(DEPDIR)/netcode_la-message.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@network/$(DEPDIR)/netcode_la-socket_utils.Plo@am__quote@
 
 .cpp.o:
@@ -511,6 +520,13 @@ lua/netcode_la-lua_connection.lo: lua/lua_connection.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lua/netcode_la-lua_connection.lo `test -f 'lua/lua_connection.cpp' || echo '$(srcdir)/'`lua/lua_connection.cpp
 
+lua/netcode_la-lua_message.lo: lua/lua_message.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT lua/netcode_la-lua_message.lo -MD -MP -MF lua/$(DEPDIR)/netcode_la-lua_message.Tpo -c -o lua/netcode_la-lua_message.lo `test -f 'lua/lua_message.cpp' || echo '$(srcdir)/'`lua/lua_message.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) lua/$(DEPDIR)/netcode_la-lua_message.Tpo lua/$(DEPDIR)/netcode_la-lua_message.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='lua/lua_message.cpp' object='lua/netcode_la-lua_message.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o lua/netcode_la-lua_message.lo `test -f 'lua/lua_message.cpp' || echo '$(srcdir)/'`lua/lua_message.cpp
+
 netcode_la-netcode.lo: netcode.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT netcode_la-netcode.lo -MD -MP -MF $(DEPDIR)/netcode_la-netcode.Tpo -c -o netcode_la-netcode.lo `test -f 'netcode.cpp' || echo '$(srcdir)/'`netcode.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/netcode_la-netcode.Tpo $(DEPDIR)/netcode_la-netcode.Plo
@@ -531,6 +547,13 @@ network/netcode_la-connection.lo: network/connection.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network/connection.cpp' object='network/netcode_la-connection.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o network/netcode_la-connection.lo `test -f 'network/connection.cpp' || echo '$(srcdir)/'`network/connection.cpp
+
+network/netcode_la-message.lo: network/message.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT network/netcode_la-message.lo -MD -MP -MF network/$(DEPDIR)/netcode_la-message.Tpo -c -o network/netcode_la-message.lo `test -f 'network/message.cpp' || echo '$(srcdir)/'`network/message.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) network/$(DEPDIR)/netcode_la-message.Tpo network/$(DEPDIR)/netcode_la-message.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='network/message.cpp' object='network/netcode_la-message.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o network/netcode_la-message.lo `test -f 'network/message.cpp' || echo '$(srcdir)/'`network/message.cpp
 
 common/netcode_la-common.lo: common/common.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(netcode_la_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT common/netcode_la-common.lo -MD -MP -MF common/$(DEPDIR)/netcode_la-common.Tpo -c -o common/netcode_la-common.lo `test -f 'common/common.cpp' || echo '$(srcdir)/'`common/common.cpp
