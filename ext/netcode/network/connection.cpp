@@ -3,6 +3,12 @@
 #include "netcode.h"
 #include "lua/lua_api.h"
 
+#include <iostream>
+
+#include <exception>
+#include <typeinfo>
+#include <stdexcept>
+
 void accept_cb(struct ev_loop *loop, struct ev_io *watcher, int revents);
 void read_cb(struct ev_loop *loop, struct ev_io *watcher, int revents);
 
@@ -118,45 +124,63 @@ bool connection::parse_message() {
 }
 
 void connection::invoke(const char* func_name, bool with_msg) {
-    lua_rawgeti(L, LUA_REGISTRYINDEX, callbacks_ref);
-    if (!lua_istable(L, -1)) {
-        loge("引用错误 callbacks_ref: %d error. %s", callbacks_ref, luaL_typename(L, -1));
-        l_dump_stack(L);
-        return;
-    }
-    lua_getfield(L, -1, func_name);
-    if (!lua_isfunction(L, -1)) {
-        logd("function %s() not exits.\n", func_name);
-        return;
-    }
-    // logd("invoke: %s", func_name);
-
-    // args
-    // 1 callbacks
-    // 2 connection user data
-    // 3 fd
-    // 4 message //可选
-    lua_insert(L, -2);
-    lua_rawgeti(L, LUA_REGISTRYINDEX, m_udata->udata_ref);
-    lua_pushinteger(L, m_fd);
-    int n_args = 3;
-    message_userdata_t* msg_udata = m_message->get_udata();
-    if (with_msg && msg_udata!= nullptr) {
-        lua_rawgeti(L, LUA_REGISTRYINDEX, msg_udata->udata_ref);
-        n_args = 4;
-    }
-
-    int pcall_ret = lua_pcall(L, n_args, 0, 0); 
-
-    if(pcall_ret != 0) {
-        const char* errmsg = lua_tostring(L, -1);
-        if(!errmsg) {
-          errmsg = "(No Lua error message.)";
-          logd("Unexpected Lua stack:\n");
-          l_dump_stack (L);
+    try {
+        lua_rawgeti(L, LUA_REGISTRYINDEX, callbacks_ref);
+        if (!lua_istable(L, -1)) {
+            loge("引用错误 callbacks_ref: %d error. %s", callbacks_ref, luaL_typename(L, -1));
+            l_dump_stack(L);
+            return;
         }
-        logd("Lua error code %i: %s\n", pcall_ret, errmsg);
-        lua_pop(L, 2);  // remove error and debug.traceback from the stack
+        lua_getfield(L, -1, func_name);
+        if (!lua_isfunction(L, -1)) {
+            logd("function %s() not exits.\n", func_name);
+            return;
+        }
+        // logd("invoke: %s", func_name);
+
+        // args
+        // 1 callbacks
+        // 2 connection user data
+        // 3 fd
+        // 4 message //可选
+        lua_insert(L, -2);
+        lua_rawgeti(L, LUA_REGISTRYINDEX, m_udata->udata_ref);
+        lua_pushinteger(L, m_fd);
+        int n_args = 3;
+        message_userdata_t* msg_udata = m_message->get_udata();
+        if (with_msg && msg_udata!= nullptr) {
+            lua_rawgeti(L, LUA_REGISTRYINDEX, msg_udata->udata_ref);
+            n_args = 4;
+        }
+
+        int pcall_ret = lua_pcall(L, n_args, 0, 0); 
+
+        if(pcall_ret != 0) {
+            const char* errmsg = lua_tostring(L, -1);
+            if(!errmsg) {
+            errmsg = "(No Lua error message.)";
+            logd("Unexpected Lua stack:\n");
+            l_dump_stack (L);
+            }
+            logd("Lua error code %i: %s\n", pcall_ret, errmsg);
+            lua_pop(L, 2);  // remove error and debug.traceback from the stack
+            return;
+        }
+    } catch(const std::runtime_error& re) {
+        loge("catch std::runtime_error: %s", re.what());
+        release();
+        return;
+    } catch (const std::exception& ex) {
+        loge("catch std::exception: %s", ex.what());
+        release();
+        return;
+    } catch (const std::string& ex) {
+        loge("catch exception: %s", ex.c_str());
+        release();
+        return;
+    } catch (...) {
+        loge("catch exception ... Possible memory corruption.");
+        release();
         return;
     }
 }
@@ -165,10 +189,13 @@ void connection::set_udata(connection_userdata_t* udata) {
     m_udata = udata;
 }
 void connection::send(std::string content) {
+    content += "\0";
     int32_t len = content.size();
-    logd("send: %s", content.c_str());
-    ::send(m_fd, &len, 4, 0);
-    ::send(m_fd, content.c_str(), content.size(), 0);
+    buffer send_buf;
+    send_buf.alloc(4 + content.size());
+    send_buf.copy((uint8_t*)&len, 4);
+    send_buf.copy((uint8_t*)content.c_str(), content.size());
+    ::send(m_fd, send_buf.r_data(), send_buf.size(), 0);
 }
 
 void accept_cb(struct ev_loop *loop, struct ev_io *watcher, int revents) {

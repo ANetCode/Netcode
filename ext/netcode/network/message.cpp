@@ -14,8 +14,14 @@ bool message::parse(buffer& buffer) {
         m_message_start = true;
         const uint8_t* raw_data = buffer.r_data();
         m_length = *((int32_t*)raw_data);
+
+        if (m_length > 16 * 1024 * 1024) {
+            return false;
+        }
+
         buffer.pop_front(4);
     }
+    if (buffer.size() == 0) return true;
 
     // 完成此消息还需要的长度
     size_t nbyte_left = m_length - m_buffer.size();

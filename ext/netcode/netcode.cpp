@@ -6,8 +6,9 @@ netcode* netcode::g_netcode = nullptr;
 netcode::netcode() {
     assert(g_netcode == nullptr);
     g_netcode = this;
-    
     b_running = false;
+
+    signal(SIGPIPE, SIG_IGN);
 }
 
 void netcode::add(int amount) {

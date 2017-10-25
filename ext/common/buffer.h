@@ -16,6 +16,7 @@ public:
 
     void copy(const uint8_t *data, size_t size);
     void copy(const buffer& other);
+    void append(uint8_t data);
     void pop_front(size_t size);
     const uint8_t* r_data() const { return m_data; };
     uint8_t*       w_data() { return m_data + m_size; }

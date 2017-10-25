@@ -46,8 +46,8 @@ void buffer::reset() {
 }
 
 void buffer::copy(const uint8_t *data, size_t size) {
-    if (m_capacity - m_size < size) {
-        alloc(size);
+    if (remains() < size) {
+        alloc(remains() + size);
     }
     if (m_capacity - m_size >= size) {
         memcpy(m_data + m_size, data, size);
@@ -86,4 +86,12 @@ void buffer::pop_front(size_t sz) {
     } else {
         m_size = 0;
     }
+}
+
+void buffer::append(uint8_t data) {
+    if (remains() == 0) {
+        alloc(m_capacity + 1);
+    }
+    memcpy(m_data, &data, 1);
+    m_size += 1;
 }
